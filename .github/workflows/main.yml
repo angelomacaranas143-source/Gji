@@ -1,4 +1,5 @@
-name: Build Pagani 26.3 JAR
+
+name: Build Pagani 26.3
 
 on:
   workflow_dispatch:
@@ -24,11 +25,11 @@ jobs:
           cache: maven
 
       - name: Build Pagani
-        run: mvn -B clean package
+        run: mvn -B -f pagani/pom.xml clean package
 
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
           name: Pagani-26.3
-          path: target/*.jar
-          
+          path: pagani/target/pagani.jar
+          if-no-files-found: error

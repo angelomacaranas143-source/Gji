@@ -18,18 +18,29 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Java 25
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '25'
           cache: maven
 
+      - name: Find Maven project
+        id: project
+        run: |
+          POM=$(find . -name pom.xml -not -path '*/target/*' | head -n 1)
+          if [ -z "$POM" ]; then
+            echo "ERROR: pom.xml not found"
+            exit 1
+          fi
+          echo "pom=$POM" >> "$GITHUB_OUTPUT"
+          echo "Found: $POM"
+
       - name: Build Pagani
-        run: mvn -B -f pagani/pom.xml clean package
+        run: mvn -B -f "${{ steps.project.outputs.pom }}" clean package
 
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
           name: Pagani-26.3
-          path: pagani/target/pagani.jar
+          path: '**/target/*.jar'
           if-no-files-found: error
